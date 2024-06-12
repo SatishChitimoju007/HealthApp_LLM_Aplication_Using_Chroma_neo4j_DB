@@ -1,0 +1,356 @@
+Impoted Libraries
+pip install langchain==0.1.0 openai==1.7.2 langchain-openai==0.0.2 langchain-community==0.0.12 langchainhub==0.1.14
+pip install python-dotenv
+pip install chromadb==0.4.22
+pip install --upgrade --quiet langchain langchainhub
+pip install polars #(from python 3.7 and above)
+
+pip install neo4j
+pip install retry
+
+./
+│
+├── data/
+│   └── reviews.csv
+│
+├── langchain_intro/
+│   ├── chatbot.py
+│   ├── create_retriever.py
+│   └── tools.py
+│
+└── .env
+
+hospital system chatbot.
+They want answers to ad-hoc questions about patients, visits, physicians, hospitals, and insurance payers
+
+chat models, prompts, chains, and retrieval,agents
+
+OPENAI_API_KEY=<YOUR-OPENAI-API-KEY>
+
+
+HumanMessage: A message from the user interacting with the language model.
+AIMessage: A message from the language model.
+SystemMessage: A message that tells the language model how to behave. Not all providers support the SystemMessage.
+
+There are other messages types, like FunctionMessage and ToolMessage, but you’ll learn more about those when you build an agent.
+
+ChatOpenAI model using GPT 3.5 Turbo as the base LLM
+
+Promt:
+PromptTemplate,
+SystemMessagePromptTemplate,
+HumanMessagePromptTemplate,
+ChatPromptTemplate,
+
+
+Chain:
+Chains and LangChain Expression Language (LCEL)
+The glue that connects chat models, prompts, and other objects in LangChain is the chain. A chain is nothing more than a sequence of calls between objects in LangChain. 
+The recommended way to build chains is to use the LangChain Expression Language (LCEL).
+ LCEL allows you to create arbitrary-length chains with the pipe symbol (|).
+
+Agent:
+An agent is a language model that decides on a sequence of actions to execute. 
+Unlike chains where the sequence of actions is hard-coded, agents use a language model to determine which actions to take and in which order.
+define a list of Tool objects. A Tool is an interface that an agent uses to interact with a function.
+ For instance, the first tool is named Reviews and it calls review_chain.invoke() if the question meets the criteria of description.
+
+
+ Traditional SQL databases:
+ Traditional SQL databases and the star schema, you can think of hospitals.csv as a dimension table. 
+ Dimension tables are relatively short and contain descriptive information or attributes that provide context to the data in fact tables. 
+ Fact tables record events about the entities stored in dimension tables, and they tend to be longer tables.
+
+ Polars is a high-performance DataFrame library, designed to provide fast and efficient data processing capabilities. 
+ Inspired by the reigning pandas library, Polars takes things to another level, 
+ offering a seamless experience for working with large datasets that might not fit into memory.
+
+ Polars combines the flexibility and user-friendliness of Python with the speed and scalability of Rust,
+  making it a compelling choice for a wide range of data processing tasks. So, what makes Polars stand out among the crowd? 
+  There are many reasons, one of the most prominent being that Polars is lightning fast.
+
+The core of Polars is written in Rust, a language that operates at a low level with no external dependencies. 
+Rust is memory-efficient and gives you performance on par with C or C++, making it a great language to underpin a data analysis library. 
+Polars also ensures that you can utilize all available CPU cores in parallel, 
+and it supports large datasets without requiring all data to be in memory.
+
+Polars’ core functionalities with DataFrames, expressions, and contexts
+
+hospitals.csv 
+information on each hospital that your company manages.
+hospital_id: An integer that uniquely identifies a hospital.
+hospital_name: The hospital’s name.
+hospital_state: The state the hospital is located in.
+
+physicians.csv
+data about the physicians that work for your hospital system
+physician_id: An integer that uniquely identifies each physician.
+physician_name: The physician’s name.
+physician_dob: The physician’s date of birth.
+physician_grad_year: The year the physician graduated medical school.
+medical_school: Where the physician attended medical school.
+salary: The physician’s salary.
+
+
+payers.csv
+records information about the insurance companies that your hospitals bills for patient visits.
+payer_id: An integer that uniquely identifies each payer.
+payer_name: The payer’s company name.
+
+reviews.csv
+patient reviews about their experience at the hospital
+review_id: An integer that uniquely identifies a review.
+visit_id: An integer that identifies the patient’s visit that the review was about.
+review: This is the free form text review left by the patient.
+physician_name: The name of the physician who treated the patient.
+hospital_name: The hospital where the patient stayed.
+patient_name: The patient’s name.
+
+visits.csv
+visit_id: The unique identifier of a hospital visit.
+patient_id: The ID of the patient associated with the visit.
+date_of_admission: The date the patient was admitted to the hospital.
+room_number: The patient’s room number.
+admission_type: One of ‘Elective’, ‘Emergency’, or ‘Urgent’.
+chief_complaint: A string describing the patient’s primary reason for being at the hospital.
+primary_diagnosis: A string describing the primary diagnosis made by the physician.
+treatment_description: A text summary of the treatment given by the physician.
+test_results: One of ‘Inconclusive’, ‘Normal’, or ‘Abnormal’.
+discharge_date: The date the patient was discharged from the hospital
+physician_id: The ID of the physician that treated the patient.
+hospital_id: The ID of the hospital the patient stayed at.
+payer_id: The ID of the insurance payer used by the patient.
+billing_amount: The amount of money billed to the payer for the visit.
+visit_status: One of ‘OPEN’ or ‘DISCHARGED’.
+
+Every hospital visit your company has serviced. Continuing with the star schema analogy, 
+you can think of visits.csv as a fact table that connects hospitals, physicians, patients, and payers
+
+Neo4j databse:
+Graph databases, such as Neo4j, are databases designed to represent and process data stored as a graph. 
+Graph data consists of nodes, edges or relationships, and properties. Nodes represent entities, relationships connect entities, 
+and properties provide additional metadata about nodes and relationships.
+
+Simplicity: Modeling real-world relationships between entities is natural in graph databases, reducing the need for complex schemas that require multiple join operations to answer queries.
+
+Relationships: Graph databases excel at handling complex relationships. Traversing relationships is efficient, making it easy to query and analyze connected data.
+
+Flexibility: Graph databases are schema-less, allowing for easy adaptation to changing data structures. This flexibility is beneficial for evolving data models.
+
+Performance: Retrieving connected data is faster in graph databases than in relational databases, especially for scenarios involving complex queries with multiple relationships.
+
+Pattern Matching: Graph databases support powerful pattern-matching queries, making it easier to express and find specific structures within the data.
+
+nodes and relationships in the hospital system data:
+flowchart is to start with the Patient node and follow the relationships. A Patient has a visit at a hospital, and the hospital employs a physician to treat the visit which is covered by an insurance payer.
+
+One notable difference is that Review nodes have an embedding property, which is a vector representation of the patient_name, physician_name, and text properties. This allows you to do vector searches over review nodes like you did with ChromaDB.
+
+nodes, properties, and relationships you want to store, you can move the hospital system data into Neo4j
+
+./
+│
+├── hospital_neo4j_etl/
+│   │
+│   ├── src/
+│   │   ├── entrypoint.sh
+│   │   └── hospital_bulk_csv_write.py
+│   │
+│   ├── Dockerfile
+│   └── pyproject.toml
+│
+├── .env
+└── docker-compose.yml
+
+
+Once you created the file .toml  (pyproject.toml) then all dependencies to install.
+   you need to run the (chatbotllmenv) <My account>\Documents\CondaEnv\ChatbotLLM\hospital_neo4j_etl> pip install .
+
+
+Neo4j Quires:
+=================================================================================================
+MATCH (p:Patient) RETURN p LIMIT 5;
+
+MATCH (v:Visit)-[r]-(n) WHERE v.id = 56 RETURN r,n;
+
+MATCH (p:Patient)-[h:HAS]->(v:Visit)<-[t:TREATS]-(ph:Physician) WHERE v.id = 56 RETURN v,p,ph
+
+MATCH (p:Patient)-[h:HAS]->(v:Visit) WHERE v.id = 56 RETURN v,h,p
+
+MATCH (v:Visit) WHERE v.id = 56 RETURN v;
+
+MATCH (p:Payer)<-[c:COVERED_BY]-(v:Visit)-[:AT]->(h:Hospital)
+WHERE p.name = "Aetna"
+AND h.state_name = "TX"
+RETURN COUNT(*) as num_visits,
+SUM(c.billing_amount) as total_billing_amount;
+
+==================================================================================================
+
+./
+│
+├── chatbot_api/
+│   │
+│   ├── src/
+│   │   │
+│   │   ├── agents/
+│   │   │   └── hospital_rag_agent.py
+│   │   │
+│   │   ├── chains/
+│   │   │   ├── hospital_cypher_chain.py
+│   │   │   └── hospital_review_chain.py
+│   │   │
+│   │   ├── tools/
+│   │   │   └── wait_times.py
+│   │
+│   └── pyproject.toml
+│
+├── hospital_neo4j_etl/
+│   │
+│   ├── src/
+│   │   ├── entrypoint.sh
+│   │   └── hospital_bulk_csv_write.py
+│   │
+│   ├── Dockerfile
+│   └── pyproject.toml
+│
+├── .env
+└── docker-compose.yml
+
+Once you created the file .toml  (pyproject.toml) then all dependencies to install.
+   you need to run the (chatbotllmenv) <My account>\Documents\CondaEnv\ChatbotLLM\chatbot_api>pip install .  
+
+
+ Fine-tuning:
+ Fine-tuning an LLM to generate queries is also an option, but this requires manually curated and labeled data.   
+
+Neo4jGraph:
+ The Neo4jGraph object is a LangChain wrapper that allows LLMs to execute queries on your Neo4j instance. 
+ You instantiate graph using your Neo4j credentials, and you call graph.refresh_schema() to sync any recent changes to your instance.
+
+few-shot prompting
+ prompt template provides the LLM with four examples of valid Cypher queries for your graph. Giving the LLM a few examples and then asking 
+ it to perform a task is known as few-shot prompting, and it’s a simple yet powerful technique for improving generation accuracy.
+
+ few-shot prompting might not be sufficient for Cypher query generation, especially if you have a complicated graph.
+  One way to improve this is to create a vector database that embeds example user questions/queries and stores their 
+  corresponding Cypher queries as metadata. 
+
+Zero-shot prompting: Giving the language model normal instructions without any additional context
+Few-shot prompting: Conditioning the model on a few examples to boost its performance
+Using delimiters: Adding special tokens or phrases to provide structure and instructions to the model
+Detailed, numbered steps: Breaking down a complex prompt into a series of small, specific steps
+
+When a user asks a question, you inject Cypher queries from semantically similar questions into the prompt, 
+ providing the LLM with the most relevant examples needed to answer the current question.
+
+
+chat_model.invoke("What is blood pressure?")
+review_chain.invoke({"context": context, "question": question})
+review_chain.invoke(question)
+hospital_agent_executor.invoke(
+...     {"input": "What is the current wait time at hospital C?"}
+... )
+hospital_agent_executor.invoke(
+...     {"input": "What have patients said about their comfort at the hospital?"}
+... )
+
+GraphCypherQAChain.from_llm()
+
+
+A breakdown of the parameters used in GraphCypherQAChain.from_llm():
+
+cypher_llm: The LLM used to generate Cypher queries.
+
+qa_llm: The LLM used to generate an answer given Cypher query results.
+
+graph: The Neo4jGraph object that connects to your Neo4j instance.
+
+verbose: Whether intermediate steps your chain performs should be printed.
+
+qa_prompt: The prompt template for responding to questions/queries.
+
+cypher_prompt: The prompt template for generating Cypher queries.
+
+validate_cypher: If true, the Cypher query will be inspected for errors and corrected before running. 
+Note that this doesn’t guarantee the Cypher query will be valid. Instead, it corrects simple syntax errors 
+that are easily detectable using regular expressions.
+
+top_k: The number of query results to include in qa_prompt.
+
+RetrievalQA.from_chain_type()
+
+Necessary permissions and The Neo4j credentials:
+Any time you allow users to query a database, as you’ll do with your Cypher chain, you need to ensure they only have necessary permissions. 
+The Neo4j credentials you’re using in this project allow users to read, write, update, and delete data from your database.
+
+If you were building this application for a real-world project, you’d want to create credentials that restrict 
+your user’s permissions to reads only, preventing them from writing or deleting valuable data.
+
+
+Your agent has four tools available to it: Experiences, Graph, Waits, and Availability. 
+The Experiences and Graph tools call .invoke() from their respective chains,
+ while Waits and Availability call the wait time functions you defined
+
+
+hospital system agent with FastAPI and Streamlit:
+Your agent accessible to anyone who calls the API endpoint or interacts with the Streamlit UI.
+
+./
+│
+├── chatbot_api/
+│   │
+│   ├── src/
+│   │   │
+│   │   ├── agents/
+│   │   │   └── hospital_rag_agent.py
+│   │   │
+│   │   ├── chains/
+│   │   │   ├── hospital_cypher_chain.py
+│   │   │   └── hospital_review_chain.py
+│   │   │
+│   │   ├── models/
+│   │   │   └── hospital_rag_query.py
+│   │   │
+│   │   ├── tools/
+│   │   │   └── wait_times.py
+│   │   │
+│   │   ├── utils/
+│   │   │   └── async_utils.py
+│   │   │
+│   │   ├── entrypoint.sh
+│   │   └── main.py
+│   │
+│   ├── Dockerfile
+│   └── pyproject.toml
+│
+├── chatbot_frontend/
+│   │
+│   ├── src/
+│   │   ├── entrypoint.sh
+│   │   └── main.py
+│   │
+│   ├── Dockerfile
+│   └── pyproject.toml
+│
+├── hospital_neo4j_etl/
+│   │
+│   ├── src/
+│   │   ├── entrypoint.sh
+│   │   └── hospital_bulk_csv_write.py
+│   │
+│   ├── Dockerfile
+│   └── pyproject.toml
+│
+├── tests/
+│   ├── async_agent_requests.py
+│   └── sync_agent_requests.py
+│
+├── .env
+└── docker-compose.yml
+
+
+
+
+
+
